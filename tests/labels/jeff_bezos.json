@@ -1,0 +1,362 @@
+{
+    "sense_id": "Jeff_Bezos",
+    "tokens": [
+        {
+            "token": "Jeffrey Preston Bezos",
+            "tag": "noun",
+            "proposals": ["Jeff_Bezos"],
+            "sense": ["Jeff_Bezos"]
+        },
+        {
+            "token": "is",
+            "tag": null
+        },
+        {
+            "token": "an",
+            "tag": null
+        },
+        {
+            "token": "American",
+            "tag": "adjective",
+            "proposals": ["m_en_gbus0028030.003", "m_en_gbus0028030.005"],
+            "sense": ["m_en_gbus0028030.003"]
+        },
+        {
+            "token": "entrepreneur",
+            "tag": "noun",
+            "proposals": ["m_en_gbus0327210.005", "m_en_gbus0327210.010"],
+            "sense": ["m_en_gbus0327210.005"]
+        },
+        {
+            "token": ",",
+            "tag": null
+        },
+        {
+            "token": "media",
+            "tag": "noun",
+            "proposals": ["m_en_gbus0628620.006", "m_en_gbus0628630.006", "m_en_gbus0629590.011", "m_en_gbus0629590.015", "m_en_gbus0629590.017", "m_en_gbus0629590.018", "m_en_gbus0629590.019", "m_en_gbus0629590.021", "m_en_gbus0629590.023", "m_en_gbus0629590.025", "m_en_gbus0629590.029"],
+            "sense": ["m_en_gbus0628620.006"]
+        },
+        {
+            "token": "proprietor",
+            "tag": "noun",
+            "proposals": ["m_en_gbus0821900.005"],
+            "sense": ["m_en_gbus0821900.005"]
+        },
+        {
+            "token": ",",
+            "tag": null
+        },
+        {
+            "token": "investor",
+            "tag": "noun",
+            "proposals": ["m_en_gbus0519990.004"],
+            "sense": ["m_en_gbus0519990.004"]
+        },
+        {
+            "token": ",",
+            "tag": null
+        },
+        {
+            "token": "computer",
+            "tag": "noun",
+            "proposals": ["m_en_gbus0207340.005", "m_en_gbus0207340.008"],
+            "sense": ["m_en_gbus0207340.005"]
+        },
+        {
+            "token": "engineer",
+            "tag": "noun",
+            "proposals": ["m_en_gbus0324670.016", "m_en_gbus0324670.019", "m_en_gbus0324670.020", "m_en_gbus0324670.021"],
+            "sense": ["m_en_gbus0324670.019"]
+        },
+        {
+            "token": ",",
+            "tag": null
+        },
+        {
+            "token": "and",
+            "tag": null
+        },
+        {
+            "token": "commercial",
+            "tag": "adjective",
+            "proposals": ["m_en_gbus0203290.007", "m_en_gbus0203290.010", "m_en_gbus0203290.011", "m_en_gbus0203290.013", "m_en_gbus0203290.015"],
+            "sense": ["m_en_gbus0203290.007"]
+        },
+        {
+            "token": "astronaut",
+            "tag": "noun",
+            "proposals": ["m_en_gbus0054040.005"],
+            "sense": ["m_en_gbus0054040.005"]
+        },
+        {
+            "token": ".",
+            "tag": null
+        },
+        {
+            "token": "He",
+            "tag": null
+        },
+        {
+            "token": "is",
+            "tag": null
+        },
+        {
+            "token": "the",
+            "tag": null
+        },
+        {
+            "token": "founder",
+            "tag": "noun",
+            "proposals": ["m_en_gbus0383990.005", "m_en_gbus0384000.005", "m_en_gbus0384010.026"],
+            "sense": ["m_en_gbus0384000.005"]
+        },
+        {
+            "token": ",",
+            "tag": null
+        },
+        {
+            "token": "executive",
+            "tag": "noun",
+            "proposals": ["m_en_gbus0340420.011", "m_en_gbus0340420.015", "m_en_gbus0340420.017", "m_en_gbus0340420.019"],
+            "sense": ["m_en_gbus0340420.011"]
+        },
+        {
+            "token": "chairman",
+            "tag": "noun",
+            "proposals": ["m_en_gbus0167070.006", "m_en_gbus0167070.009", "m_en_gbus0167070.010", "m_en_gbus0167070.015", "m_en_gbus0167070.017"],
+            "sense": ["m_en_gbus0167070.009"]
+        },
+        {
+            "token": "and",
+            "tag": null
+        },
+        {
+            "token": "former",
+            "tag": null
+        },
+        {
+            "token": "president",
+            "tag": "noun",
+            "proposals": ["m_en_gbus0812640.008", "m_en_gbus0812640.011", "m_en_gbus0812640.013", "m_en_gbus0812640.014", "m_en_gbus0812640.016"],
+            "sense": ["m_en_gbus0812640.014"]
+        },
+        {
+            "token": "and",
+            "tag": null
+        },
+        {
+            "token": "CEO",
+            "tag": "noun",
+            "proposals": ["m_en_gbus0164550.005"],
+            "sense": ["m_en_gbus0164550.005"]
+        },
+        {
+            "token": "of",
+            "tag": null
+        },
+        {
+            "token": "Amazon",
+            "tag": "noun",
+            "proposals": ["m_en_gbus0027220.007", "m_en_gbus0027230.008", "m_en_gbus0027230.011", "m_en_gbus0027230.015", "Amazon", "Amazon_(company)"],
+            "sense": ["Amazon_(company)"]
+        },
+        {
+            "token": ".",
+            "tag": null
+        },
+        {
+            "token": "With",
+            "tag": null
+        },
+        {
+            "token": "a",
+            "tag": null
+        },
+        {
+            "token": "net",
+            "tag": "adjective",
+            "proposals": ["m_en_gbus0435140.006", "m_en_gbus0435140.009", "m_en_gbus0435140.010", "m_en_gbus0435140.011", "m_en_gbus0435140.013", "m_en_gbus0435140.014", "m_en_gbus0435140.018", "m_en_gbus0435140.020", "m_en_gbus0685980.007", "m_en_gbus0685980.010", "m_en_gbus0685980.011", "m_en_gbus0685980.013", "m_en_gbus1199302.002"],
+            "sense": ["m_en_gbus1199302.002"]
+        },
+        {
+            "token": "worth",
+            "tag": "noun",
+            "proposals": ["m_en_gbus1169060.027", "m_en_gbus1169060.029", "m_en_gbus1169060.030", "m_en_gbus1169060.031", "m_en_gbus1199302.002"],
+            "sense": ["m_en_gbus1199302.002"]
+        },
+        {
+            "token": "of",
+            "tag": null
+        },
+        {
+            "token": "around",
+            "tag": null
+        },
+        {
+            "token": "US$",
+            "tag": null
+        },
+        {
+            "token": "136",
+            "tag": "numeral"
+        },
+        {
+            "token": "billion",
+            "tag": "numeral",
+            "proposals": ["m_en_gbus0094340.006", "m_en_gbus0094340.010", "m_en_gbus0094340.012", "m_en_gbus0094340.013"],
+            "sense": ["m_en_gbus0094340.012"]
+        },
+        {
+            "token": "as",
+            "tag": null
+        },
+        {
+            "token": "of",
+            "tag": null
+        },
+        {
+            "token": "September",
+            "tag": "noun",
+            "proposals": ["m_en_gbus0925560.006", "September", "September_(Earth,_Wind_&_Fire_song)"],
+            "sense": ["m_en_gbus0925560.006"]
+        },
+        {
+            "token": "2022",
+            "tag": "numeral"
+        },
+        {
+            "token": ",",
+            "tag": null
+        },
+        {
+            "token": "Bezos",
+            "tag": "noun"
+        },
+        {
+            "token": "is",
+            "tag": null
+        },
+        {
+            "token": "the",
+            "tag": null
+        },
+        {
+            "token": "second",
+            "tag": null
+        },
+        {
+            "token": "-",
+            "tag": null
+        },
+        {
+            "token": "wealthiest",
+            "tag": "adjective",
+            "proposals": ["m_en_gbus1146160.007"],
+            "sense": ["m_en_gbus1146160.007"]
+        },
+        {
+            "token": "person",
+            "tag": "noun",
+            "proposals": ["m_en_gbus0768650.009", "m_en_gbus0768650.013", "m_en_gbus0768650.018", "m_en_gbus0768650.021", "m_en_gbus0768650.022", "m_en_gbus0768650.025", "m_en_gbus0768650.031"],
+            "sense": ["m_en_gbus0768650.009"]
+        },
+        {
+            "token": "in",
+            "tag": null
+        },
+        {
+            "token": "the",
+            "tag": null,
+            "sense": ["m_en_gbus1168160.014"]
+        },
+        {
+            "token": "world",
+            "tag": "noun",
+            "proposals": ["m_en_gbus1168160.008", "m_en_gbus1168160.010", "m_en_gbus1168160.011", "m_en_gbus1168160.013", "m_en_gbus1168160.014", "m_en_gbus1168160.016", "m_en_gbus1168160.019", "m_en_gbus1168160.020", "m_en_gbus1168160.021", "m_en_gbus1168160.022", "m_en_gbus1168160.024", "m_en_gbus1168160.025", "m_en_gbus1168160.026"],
+            "sense": ["m_en_gbus1168160.014"]
+        },
+        {
+            "token": "and",
+            "tag": null
+        },
+        {
+            "token": "was",
+            "tag": null
+        },
+        {
+            "token": "the",
+            "tag": null
+        },
+        {
+            "token": "wealthiest",
+            "tag": "adjective",
+            "proposals": ["m_en_gbus1146160.007"],
+            "sense": ["m_en_gbus1146160.007"]
+        },
+        {
+            "token": "from",
+            "tag": null
+        },
+        {
+            "token": "2017",
+            "tag": "numeral"
+        },
+        {
+            "token": "to",
+            "tag": null
+        },
+        {
+            "token": "2021",
+            "tag": "numeral"
+        },
+        {
+            "token": "according",
+            "tag": "verb",
+            "proposals": ["m_en_gbus0005090.006", "m_en_gbus0005090.013"],
+            "sense": ["m_en_gbus0005090.013"]
+        },
+        {
+            "token": "to",
+            "tag": null
+        },
+        {
+            "token": "both",
+            "tag": null
+        },
+        {
+            "token": "Bloomberg's Billionaires Index",
+            "tag": "noun"
+        },
+        {
+            "token": "and",
+            "tag": null
+        },
+        {
+            "token": "Forbes",
+            "tag": "noun",
+            "proposals": ["Forbes"],
+            "sense": ["Forbes"]
+        },
+        {
+            "token": ".",
+            "tag": null
+        }
+    ],
+    "compound_indices": [
+        ["m_en_gbus1199302.002", 35, 37],
+        ["m_en_gbus1168160.008", 55, 57],
+        ["m_en_gbus1168160.010", 55, 57],
+        ["m_en_gbus1168160.011", 55, 57],
+        ["m_en_gbus1168160.013", 55, 57],
+        ["m_en_gbus1168160.014", 55, 57],
+        ["m_en_gbus1168160.016", 55, 57],
+        ["m_en_gbus1168160.019", 55, 57],
+        ["m_en_gbus1168160.020", 55, 57],
+        ["m_en_gbus1168160.021", 55, 57],
+        ["m_en_gbus1168160.022", 55, 57],
+        ["m_en_gbus1168160.024", 55, 57],
+        ["m_en_gbus1168160.025", 55, 57],
+        ["m_en_gbus1168160.026", 55, 57]
+    ]
+}
