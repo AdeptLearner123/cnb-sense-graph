@@ -19,9 +19,6 @@ def _command(command: Union[List[str], str], shell: bool = False):
         shell=shell,
     )
 
-    if command_exit_code != 0:
-        sys.exit(command_exit_code)
-
 
 def format():
     _command(["black", "."])
