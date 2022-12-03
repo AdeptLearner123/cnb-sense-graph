@@ -69,8 +69,9 @@ class Disambiguator:
         ]
 
         print("Disambiguation instacnes", len(disambiguation_instances), len([ instance for instance in disambiguation_instances if not instance.is_finished() ]))
+        print("Finished", [ sense_id for sense_id, instance in zip(sense_id_list, disambiguation_instances) if instance.is_finished()])
 
-        while not any([ instance.is_finished() for instance in disambiguation_instances ]):
+        while any([ not instance.is_finished() for instance in disambiguation_instances ]):
             active_instances = [ instance for instance in disambiguation_instances if not instance.is_finished() ]
             print("New round, active instances", len(active_instances))
 
