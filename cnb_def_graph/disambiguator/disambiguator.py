@@ -59,7 +59,7 @@ class Disambiguator:
 
     def _divide_batches(self, active_instances, input_senses_list):
         instance_batches = [ active_instances[i : i + self.BATCH_SIZE] for i in range(0, len(active_instances), self.BATCH_SIZE) ]
-        input_senses_batches = [ input_senses_batches[i : i + self.BATCH_SIZE] for i in range(0, len(input_senses_list), self.BATCH_SIZE) ]
+        input_senses_batches = [ input_senses_list[i : i + self.BATCH_SIZE] for i in range(0, len(input_senses_list), self.BATCH_SIZE) ]
         return zip(instance_batches, input_senses_batches)
 
     def batch_disambiguate(self, sense_id_list, token_proposals_list, compound_indices_list):
