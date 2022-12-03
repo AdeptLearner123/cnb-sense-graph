@@ -68,6 +68,8 @@ class Disambiguator:
             for sense_id, token_proposals, compound_indices in zip(sense_id_list, token_proposals_list, compound_indices_list)
         ]
 
+        print("Disambiguation instacnes", len(disambiguation_instances), len([ instance for instance in disambiguation_instances if not instance.is_finished() ]))
+
         while not any([ instance.is_finished() for instance in disambiguation_instances ]):
             active_instances = [ instance for instance in disambiguation_instances if not instance.is_finished() ]
             print("New round, active instances", len(active_instances))
