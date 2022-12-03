@@ -7,11 +7,11 @@ from cnb_def_graph.consec.sense_extractor import SenseExtractor
 from cnb_def_graph.consec.tokenizer import ConsecTokenizer
 
 class Disambiguator:
-    def __init__(self, debug_mode=False):
+    def __init__(self, debug_mode=False, use_amp=False):
         self._dictionary = read_dicts()
         self._debug_mode = debug_mode
         state_dict = torch.load(CONSEC_MODEL_STATE)
-        self._sense_extractor = SenseExtractor()
+        self._sense_extractor = SenseExtractor(use_amp=use_amp)
         self._sense_extractor.load_state_dict(state_dict)
         self._sense_extractor.eval()
         self._tokenizer = ConsecTokenizer()

@@ -7,9 +7,16 @@ from tqdm import tqdm
 import os
 import json
 from config import DISAMBIGUATION_BATCHES
-import time
+from argparse import ArgumentParser
 
 SAVE_INTERVAL = 2
+
+def parse_args():
+    parser = ArgumentParser()
+    parser.add_argument("--use-amp", action="store_true")
+    args = parser.parse_args()
+    return args.use_amp
+
 
 def get_disambiguated_sense_ids():
     sense_ids = set()
@@ -38,15 +45,16 @@ def save(batch_id, batch_text_senses):
 
 
 def main():
+    use_amp = parse_args()
+    
     dictionary = read_dicts()
     token_tagger = TokenTagger()
     sense_proposer = SenseProposer()
-    disambiguator = Disambiguator()
+    disambiguator = Disambiguator(use_amp=use_amp)
 
     disambiguated_text_ids = get_disambiguated_sense_ids()
     #missing_sense_ids = set(dictionary.keys()).difference(disambiguated_text_ids)
-    #missing_sense_ids = ["m_en_gbus1184393.004", "m_en_gbus1095630.006", "m_en_gbus0275210.002", "m_en_gbus0593740.003", "Brooks_Wackerman", "m_en_gbus0009480.014", "Tales_of_Arcadia", "m_en_gbus0697540.012", "m_en_gbus0995940.005", "m_en_gbus0636170.011"]
-    missing_sense_ids = ["Jeff_Bezos"]
+    missing_sense_ids = ["m_en_gbus1184393.004", "m_en_gbus1095630.006", "m_en_gbus0275210.002", "m_en_gbus0593740.003", "Brooks_Wackerman", "m_en_gbus0009480.014", "Tales_of_Arcadia", "m_en_gbus0697540.012", "m_en_gbus0995940.005", "m_en_gbus0636170.011"]
     print("Sense ids:", len(missing_sense_ids), "/", len(dictionary))
 
     batch_result = dict()

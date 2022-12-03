@@ -44,15 +44,16 @@ class ConsecDebertaModel(DebertaPreTrainedModel):
 
 
 class SenseExtractor(nn.Module):
-    def __init__(self):
+    def __init__(self, use_amp=False):
         super().__init__()
         self.model = ConsecDebertaModel.from_pretrained("microsoft/deberta-large")
-
         self.model.resize_token_embeddings(self.model.config.vocab_size + 203)
 
         self.classification_head = torch.nn.Sequential(
             torch.nn.Dropout(0.0), torch.nn.Linear(self.model.config.hidden_size, 1, bias=False)
         )
+
+        self.use_amp = use_amp
 
     def _compute_markers(self, input_ids, logits):
         output_markers = torch.zeros_like(input_ids)
@@ -64,7 +65,10 @@ class SenseExtractor(nn.Module):
         return logits * (1 - logits_mask) - 1e30 * logits_mask
     
     def forward(self, input_ids, attention_mask, token_types, relative_pos):
-        model_out = self.model(input_ids, attention_mask, token_types, relative_pos)
+        with torch.autocast(device_type='cuda', dtype=torch.float16, enabled=self.use_amp):
+            model_out = self.model(input_ids, attention_mask, token_types, relative_pos)
+            print("Model out dtype", model_out.dtype)
+            
         classification_logits = self.classification_head(model_out).squeeze(-1)
         return classification_logits
 

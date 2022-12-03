@@ -7,7 +7,7 @@ readme = "README.md"
 packages = [{include = "cnb_def_graph"}]
 
 [tool.poetry.dependencies]
-python = "^3.10"
+python = "^3.8"
 spacy = "^3.4.3"
 transformers = "^4.24.0"
 
