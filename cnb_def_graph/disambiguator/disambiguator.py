@@ -55,6 +55,11 @@ class Disambiguator:
     def disambiguate(self, sense_id, token_senses, compound_indices):
         return self._disambiguate_tokens(sense_id, token_senses, compound_indices)
 
+    def _divide_batches(self, active_instances, input_senses_list):
+        instance_batches = [ active_instances[i : i + self.BATCH_SIZE] for i in range(0, len(active_instances), self.BATCH_SIZE) ]
+        input_senses_batches = [ input_senses_batches[i : i + self.BATCH_SIZE] for i in range(0, len(input_senses_list), self.BATCH_SIZE) ]
+        return zip(instance_batches, input_senses_batches)
+
     def batch_disambiguate(self, sense_id_list, token_proposals_list, compound_indices_list):
         disambiguation_instances = [
             ConsecDisambiguationInstance(self._dictionary, self._tokenizer, sense_id, token_proposals, compound_indices)
@@ -64,18 +69,20 @@ class Disambiguator:
         while not any([ instance.is_finished() for instance in disambiguation_instances ]):
             active_instances = [ instance for instance in disambiguation_instances if not instance.is_finished() ]
             inputs_senses_list = [ instance.get_next_input() for instance in active_instances ]
-            inputs_list = [ inputs for inputs, _ in inputs_senses_list ]
-            senses_list = [ senses for _, senses in inputs_senses_list ]
             
-            if torch.cuda.is_available():
-                inputs_list = [ self._send_inputs_to_cuda(inputs) for inputs in inputs_list ]
-            
-            inputs_list = list(zip(*inputs_list))
-            probs_list = self._sense_extractor.batch_extract(*inputs_list)
+            for batch_instances, batch_inputs_senses in self._divide_batches(active_instances, inputs_senses_list):
+                inputs_list = [ inputs for inputs, _ in batch_inputs_senses ]
+                senses_list = [ senses for _, senses in batch_inputs_senses ]
+                
+                if torch.cuda.is_available():
+                    inputs_list = [ self._send_inputs_to_cuda(inputs) for inputs in inputs_list ]
+                
+                inputs_list = list(zip(*inputs_list))
+                probs_list = self._sense_extractor.batch_extract(*inputs_list)
 
-            idx_list = [ torch.argmax(torch.tensor(probs)) for probs in probs_list ]
-            selected_senses_list = [ senses[idx] for senses, idx in zip(senses_list, idx_list) ]
+                idx_list = [ torch.argmax(torch.tensor(probs)) for probs in probs_list ]
+                selected_senses_list = [ senses[idx] for senses, idx in zip(senses_list, idx_list) ]
 
-            [ instance.set_result(selected_sense) for instance, selected_sense in zip(active_instances, selected_senses_list) ]
+                [ instance.set_result(selected_sense) for instance, selected_sense in zip(batch_instances, selected_senses_list) ]
         
         return [ instance.get_disambiguated_senses() for instance in disambiguation_instances ]

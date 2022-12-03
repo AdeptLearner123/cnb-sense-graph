@@ -10,6 +10,7 @@ from config import DISAMBIGUATION_BATCHES, DRY_RUN_SENSES
 from argparse import ArgumentParser
 
 SAVE_INTERVAL = 2
+CHUNK_SIZE = 10000
 
 def parse_args():
     parser = ArgumentParser()
@@ -44,6 +45,10 @@ def save(batch_id, batch_text_senses):
         file.write(json.dumps(batch_text_senses, sort_keys=True, indent=4, ensure_ascii=False))
 
 
+def divide_chunks(sense_ids):
+    return [sense_ids[i : i + CHUNK_SIZE] for i in range(0, len(sense_ids), CHUNK_SIZE) ]
+
+
 def disambiguate_defs(dictionary, sense_ids, start_batch_id, should_save):
     use_amp = parse_args()
     
@@ -51,8 +56,23 @@ def disambiguate_defs(dictionary, sense_ids, start_batch_id, should_save):
     sense_proposer = SenseProposer()
     disambiguator = Disambiguator(use_amp=use_amp)
 
-    batch_result = dict()
     batch_id = start_batch_id
+
+    for chunk_sense_ids in divide_chunks(sense_ids):
+        definition_list = [ dictionary[sense_id]["definition"] for sense_id in chunk_sense_ids ]
+        token_tags_list = [ token_tagger.tokenize_tag(definition) for definition in definition_list ]
+        proposals_compounds_list = [ sense_proposer.propose_senses(token_tags) for token_tags in token_tags_list ]
+        token_proposals_list = [ proposals for proposals, _ in proposals_compounds_list ]
+        compound_indices_list = [ compound_indices for _, compound_indices in proposals_compounds_list ]
+
+        senses_list = disambiguator.batch_disambiguate(chunk_sense_ids, token_proposals_list, compound_indices_list)
+        batch_result = { sense_id: senses for sense_id, senses in zip(chunk_sense_ids, senses_list) }
+
+        if should_save:
+            save(batch_id, batch_result)
+            batch_id += CHUNK_SIZE
+
+    """
     for i, sense_id in tqdm(list(enumerate(sense_ids))):
         definition = dictionary[sense_id]["definition"]
         token_tags = token_tagger.tokenize_tag(definition)
@@ -68,6 +88,7 @@ def disambiguate_defs(dictionary, sense_ids, start_batch_id, should_save):
             batch_id += SAVE_INTERVAL
     if should_save:
         save(batch_id, batch_result)    
+    """
 
 
 def disambiguate_all():

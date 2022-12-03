@@ -66,7 +66,6 @@ class SenseExtractor(nn.Module):
     def forward(self, input_ids, attention_mask, token_types, relative_pos):
         with torch.autocast(device_type='cuda', dtype=torch.float16, enabled=self.use_amp):
             model_out = self.model(input_ids, attention_mask, token_types, relative_pos)
-            print("Model out dtype", model_out.dtype)
             
         classification_logits = self.classification_head(model_out).squeeze(-1)
         return classification_logits
