@@ -29,5 +29,5 @@ def format():
 
 
 def setup():
-    _command(["spacy", "download", "en_core_web_sm"])
-    _command(["python", "-m", "pip", "install", "torch"])
+    _command("spacy download en_core_web_sm", shell=True)
+    _command("python -m pip install torch", shell=True)
