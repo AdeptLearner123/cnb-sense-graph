@@ -47,7 +47,7 @@ class ConsecDisambiguationInstance:
         context_definitions = [ (i, self._get_definition(sense)) for i, sense in context_senses ]
         
         tokenizer_result = self._tokenizer.tokenize(self._tokens, idx, candidate_definitions, context_definitions)
-        return tokenizer_result, (candidate_senses, candidate_definitions)
+        return tokenizer_result, candidate_senses
     
     def set_result(self, disambiguated_sense):
         idx = self._disambiguation_order[self._current]
@@ -55,4 +55,10 @@ class ConsecDisambiguationInstance:
         self._current += 1
     
     def get_disambiguated_senses(self):
-        return self._disambiguated_senses
+        senses = self._disambiguated_senses
+
+        for sense, (start, end) in self._compound_indices:
+            if sense in senses[start:end]:
+                senses[start:end] = [sense] * (end - start)
+        
+        return senses

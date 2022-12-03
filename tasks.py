@@ -13,7 +13,7 @@ repo_root = os.path.dirname(__file__)
 
 
 def _command(command: Union[List[str], str], shell: bool = False):
-    command_exit_code = subprocess.run(
+    subprocess.run(
         command,
         cwd=repo_root,
         shell=shell,

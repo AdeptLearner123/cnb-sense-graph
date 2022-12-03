@@ -18,7 +18,8 @@ def test_disambiguator():
             compound_indices = [ (sense, (start, end)) for sense, start, end in labels["compound_indices"] ]
             tokens = [ token for token, _ in token_proposals ]
 
-            senses = disambiguator.disambiguate(sense_id, token_proposals, compound_indices)
+            senses_list = disambiguator.batch_disambiguate([ sense_id ], [ token_proposals ], [ compound_indices ])
+            senses = senses_list[0]
 
             expected_senses = [ item["sense"] if "sense" in item else None for item in labels["tokens"] ]
             print(expected_senses)

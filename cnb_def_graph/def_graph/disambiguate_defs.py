@@ -6,7 +6,7 @@ from cnb_def_graph.utils.read_dicts import read_dicts
 from tqdm import tqdm
 import os
 import json
-from config import DISAMBIGUATION_BATCHES
+from config import DISAMBIGUATION_BATCHES, DRY_RUN_SENSES
 from argparse import ArgumentParser
 
 SAVE_INTERVAL = 2
@@ -44,26 +44,21 @@ def save(batch_id, batch_text_senses):
         file.write(json.dumps(batch_text_senses, sort_keys=True, indent=4, ensure_ascii=False))
 
 
-def main():
+def disambiguate_defs(dictionary, sense_ids, start_batch_id):
     use_amp = parse_args()
     
-    dictionary = read_dicts()
     token_tagger = TokenTagger()
     sense_proposer = SenseProposer()
     disambiguator = Disambiguator(use_amp=use_amp)
 
-    disambiguated_text_ids = get_disambiguated_sense_ids()
-    #missing_sense_ids = set(dictionary.keys()).difference(disambiguated_text_ids)
-    missing_sense_ids = ["m_en_gbus1184393.004", "m_en_gbus1095630.006", "m_en_gbus0275210.002", "m_en_gbus0593740.003", "Brooks_Wackerman", "m_en_gbus0009480.014", "Tales_of_Arcadia", "m_en_gbus0697540.012", "m_en_gbus0995940.005", "m_en_gbus0636170.011"]
-    print("Sense ids:", len(missing_sense_ids), "/", len(dictionary))
-
     batch_result = dict()
-    batch_id = len(disambiguated_text_ids)
-    for i, sense_id in tqdm(list(enumerate(missing_sense_ids))):
+    batch_id = start_batch_id
+    for i, sense_id in tqdm(list(enumerate(sense_ids))):
         definition = dictionary[sense_id]["definition"]
         token_tags = token_tagger.tokenize_tag(definition)
         token_proposals, compound_indices = sense_proposer.propose_senses(token_tags)
         senses = disambiguator.disambiguate(sense_id, token_proposals, compound_indices)
+        #senses = disambiguator.batch_disambiguate([ sense_id ], [ token_proposals ], [ compound_indices ])[0]
         senses = [ sense for sense in senses if sense is not None ]
         batch_result[sense_id] = list(set(senses))
 
@@ -71,7 +66,35 @@ def main():
             save(batch_id, batch_result)
             batch_result = dict()
             batch_id += SAVE_INTERVAL
-    save(batch_id, batch_result)
+    save(batch_id, batch_result)    
+
+
+def disambiguate_all():
+    dictionary = read_dicts()
+    disambiguated_text_ids = get_disambiguated_sense_ids()
+    missing_sense_ids = set(dictionary.keys()).difference(disambiguated_text_ids)
+
+    print("Sense ids:", len(missing_sense_ids), "/", len(dictionary))
+
+    disambiguate_defs(dictionary, missing_sense_ids, len(disambiguated_text_ids))
+
+
+def dry_run():
+    with open(DRY_RUN_SENSES, "r") as file:
+        sense_ids = file.read().splitlines()
+    
+    dictionary = read_dicts()
+
+    disambiguate_defs(dictionary, sense_ids, 0)
+
+
+def create_dry_run():
+    import random
+
+    dictionary = read_dicts()
+    dry_run_senses = random.sample(dictionary.keys(), 512)
+    with open(DRY_RUN_SENSES, "w+") as file:
+        file.write("\n".join(dry_run_senses))
 
 
 if __name__ == "__main__":

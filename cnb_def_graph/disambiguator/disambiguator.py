@@ -7,6 +7,8 @@ from cnb_def_graph.consec.sense_extractor import SenseExtractor
 from cnb_def_graph.consec.tokenizer import ConsecTokenizer
 
 class Disambiguator:
+    BATCH_SIZE = 128
+
     def __init__(self, debug_mode=False, use_amp=False):
         self._dictionary = read_dicts()
         self._debug_mode = debug_mode
@@ -23,7 +25,7 @@ class Disambiguator:
         disambiguation_instance = ConsecDisambiguationInstance(self._dictionary, self._tokenizer, sense_id, token_senses, compound_indices)
 
         while not disambiguation_instance.is_finished():
-            input, (senses, definitions) = disambiguation_instance.get_next_input()
+            input, senses = disambiguation_instance.get_next_input()
             if torch.cuda.is_available():
                 input = self._send_inputs_to_cuda(input)
 
@@ -32,7 +34,7 @@ class Disambiguator:
             if self._debug_mode:
                 sense_idxs = torch.tensor(probs).argsort(descending=True)
                 for sense_idx in sense_idxs:
-                    print(f"{senses[sense_idx]}:  {probs[sense_idx]} --- {definitions[sense_idx]}")
+                    print(f"{senses[sense_idx]}:  {probs[sense_idx]}")
 
             sense_idx = torch.argmax(torch.tensor(probs))
             disambiguation_instance.set_result(senses[sense_idx])
@@ -51,10 +53,29 @@ class Disambiguator:
         return (input_ids, attention_mask, token_types, relative_pos, def_mask, def_pos)
 
     def disambiguate(self, sense_id, token_senses, compound_indices):
-        senses = self._disambiguate_tokens(sense_id, token_senses, compound_indices)
+        return self._disambiguate_tokens(sense_id, token_senses, compound_indices)
 
-        for sense, (start, end) in compound_indices:
-            if sense in senses[start:end]:
-                senses[start:end] = [sense] * (end - start)
+    def batch_disambiguate(self, sense_id_list, token_proposals_list, compound_indices_list):
+        disambiguation_instances = [
+            ConsecDisambiguationInstance(self._dictionary, self._tokenizer, sense_id, token_proposals, compound_indices)
+            for sense_id, token_proposals, compound_indices in zip(sense_id_list, token_proposals_list, compound_indices_list)
+        ]
 
-        return senses
+        while not any([ instance.is_finished() for instance in disambiguation_instances ]):
+            active_instances = [ instance for instance in disambiguation_instances if not instance.is_finished() ]
+            inputs_senses_list = [ instance.get_next_input() for instance in active_instances ]
+            inputs_list = [ inputs for inputs, _ in inputs_senses_list ]
+            senses_list = [ senses for _, senses in inputs_senses_list ]
+            
+            if torch.cuda.is_available():
+                inputs_list = [ self._send_inputs_to_cuda(inputs) for inputs in inputs_list ]
+            
+            inputs_list = list(zip(*inputs_list))
+            probs_list = self._sense_extractor.batch_extract(*inputs_list)
+
+            idx_list = [ torch.argmax(torch.tensor(probs)) for probs in probs_list ]
+            selected_senses_list = [ senses[idx] for senses, idx in zip(senses_list, idx_list) ]
+
+            [ instance.set_result(selected_sense) for instance, selected_sense in zip(active_instances, selected_senses_list) ]
+        
+        return [ instance.get_disambiguated_senses() for instance in disambiguation_instances ]
