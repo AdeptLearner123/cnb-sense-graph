@@ -1,0 +1,34 @@
+{
+    "sense_id": "m_en_gbus1004380.003",
+    "tokens": [
+        {
+            "token": "a",
+            "tag": null
+        },
+        {
+            "token": "name",
+            "tag": null
+        },
+        {
+            "token": "for",
+            "tag": null
+        },
+        {
+            "token": "the",
+            "tag": null
+        },
+        {
+            "token": "House of Commons",
+            "tag": "noun",
+            "proposals": ["m_en_gbus0482330.004"],
+            "sense": ["m_en_gbus0482330.004"]
+        },
+        {
+            "token": ".",
+            "tag": null
+        }
+    ],
+    "compound_indices": [
+        ["m_en_gbus0676830.101", 1, 3]
+    ]
+}

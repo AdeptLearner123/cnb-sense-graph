@@ -15,6 +15,8 @@ transformers = "^4.24.0"
 format                          = "tasks:format"
 setup                           = "tasks:setup"
 
+disambiguate                    = "tools.disambiguate:main"
+
 create-sense-inventory          = "cnb_def_graph.sense_inventory.create_sense_inventory:main"
 disambiguate-defs               = "cnb_def_graph.def_graph.disambiguate_defs:disambiguate_all"
 dry-run                         = "cnb_def_graph.def_graph.disambiguate_defs:dry_run"

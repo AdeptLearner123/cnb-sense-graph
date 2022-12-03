@@ -71,6 +71,7 @@ class SenseExtractor(nn.Module):
         return classification_logits
 
     def extract(self, input_ids, attention_mask, token_types, relative_pos, definitions_mask, definition_positions):
+        print("Input ids", len(input_ids))
         # Add dummy batch dimension
         input_ids = input_ids[None]
         attention_mask = attention_mask[None]

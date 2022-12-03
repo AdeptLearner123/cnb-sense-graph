@@ -22,9 +22,7 @@ def test_disambiguator():
             senses = senses_list[0]
 
             expected_senses = [ item["sense"] if "sense" in item else None for item in labels["tokens"] ]
-            print(expected_senses)
-            print(token_proposals)
-            print(senses)
+
             for token, sense, expected_sense_options in zip(tokens, senses, expected_senses):
                 if expected_sense_options is None:
                     assert sense is None, f"Expected {token} to have no sense but was {sense}"

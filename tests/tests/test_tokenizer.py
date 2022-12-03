@@ -21,6 +21,9 @@ def test_tokenizer():
             expected_tokens = [ token for token, _ in expected_token_tags ]
             tokens = [ token for token, _ in token_tags ]
 
+            print(expected_tokens)
+            print(tokens)
+
             assert expected_tokens == tokens, f"Expected tokens {expected_tokens} but was {tokens}"
 
             for (token, tag), (_, expected_tag) in zip(token_tags, expected_token_tags):
