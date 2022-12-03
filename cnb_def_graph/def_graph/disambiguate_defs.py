@@ -7,11 +7,16 @@ from tqdm import tqdm
 import os
 import json
 from config import DISAMBIGUATION_BATCHES
+import time
 
-SAVE_INTERVAL = 1000
+SAVE_INTERVAL = 2
 
 def get_disambiguated_sense_ids():
     sense_ids = set()
+
+    if not os.path.exists(DISAMBIGUATION_BATCHES):
+        os.mkdir(DISAMBIGUATION_BATCHES)
+
     for filename in os.listdir(DISAMBIGUATION_BATCHES):
         if filename.endswith(".json"):
             with open(os.path.join(DISAMBIGUATION_BATCHES, filename), "r") as file:
@@ -39,12 +44,14 @@ def main():
     disambiguator = Disambiguator()
 
     disambiguated_text_ids = get_disambiguated_sense_ids()
-    missing_sense_ids = set(dictionary.keys()).difference(disambiguated_text_ids)
+    #missing_sense_ids = set(dictionary.keys()).difference(disambiguated_text_ids)
+    #missing_sense_ids = ["m_en_gbus1184393.004", "m_en_gbus1095630.006", "m_en_gbus0275210.002", "m_en_gbus0593740.003", "Brooks_Wackerman", "m_en_gbus0009480.014", "Tales_of_Arcadia", "m_en_gbus0697540.012", "m_en_gbus0995940.005", "m_en_gbus0636170.011"]
+    missing_sense_ids = ["Jeff_Bezos"]
     print("Sense ids:", len(missing_sense_ids), "/", len(dictionary))
 
     batch_result = dict()
     batch_id = len(disambiguated_text_ids)
-    for i, sense_id in tqdm(enumerate(missing_sense_ids)):
+    for i, sense_id in tqdm(list(enumerate(missing_sense_ids))):
         definition = dictionary[sense_id]["definition"]
         token_tags = token_tagger.tokenize_tag(definition)
         token_proposals, compound_indices = sense_proposer.propose_senses(token_tags)

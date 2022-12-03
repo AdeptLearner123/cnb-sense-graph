@@ -17,7 +17,6 @@ class TokenTagger():
     def __init__(self):
         self._nlp = spacy.load("en_core_web_sm", disable=["parser", "ner"])
         self._nlp.Defaults.stop_words -= self.MANUAL_REMOVE_STOP_WORDS
-        print(self._nlp.Defaults.stop_words)
 
     def _merge_proper_chunks(self, doc):
         pattern = [

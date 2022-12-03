@@ -81,7 +81,7 @@
             "token": "commercial",
             "tag": "adjective",
             "proposals": ["m_en_gbus0203290.007", "m_en_gbus0203290.010", "m_en_gbus0203290.011", "m_en_gbus0203290.013", "m_en_gbus0203290.015"],
-            "sense": ["m_en_gbus0203290.007"]
+            "sense": ["m_en_gbus0203290.007", "m_en_gbus0203290.010"]
         },
         {
             "token": "astronaut",
