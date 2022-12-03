@@ -6,6 +6,8 @@ from cnb_def_graph.consec.disambiguation_instance import ConsecDisambiguationIns
 from cnb_def_graph.consec.sense_extractor import SenseExtractor
 from cnb_def_graph.consec.tokenizer import ConsecTokenizer
 
+from tqdm import tqdm
+
 class Disambiguator:
     BATCH_SIZE = 128
 
@@ -68,9 +70,11 @@ class Disambiguator:
 
         while not any([ instance.is_finished() for instance in disambiguation_instances ]):
             active_instances = [ instance for instance in disambiguation_instances if not instance.is_finished() ]
+            print("New round, active instances", len(active_instances))
+
             inputs_senses_list = [ instance.get_next_input() for instance in active_instances ]
             
-            for batch_instances, batch_inputs_senses in self._divide_batches(active_instances, inputs_senses_list):
+            for batch_instances, batch_inputs_senses in tqdm(self._divide_batches(active_instances, inputs_senses_list)):
                 inputs_list = [ inputs for inputs, _ in batch_inputs_senses ]
                 senses_list = [ senses for _, senses in batch_inputs_senses ]
                 

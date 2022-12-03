@@ -58,7 +58,7 @@ def disambiguate_defs(dictionary, sense_ids, start_batch_id, should_save):
 
     batch_id = start_batch_id
 
-    for chunk_sense_ids in divide_chunks(sense_ids):
+    for chunk_sense_ids in tqdm(divide_chunks(sense_ids)):
         definition_list = [ dictionary[sense_id]["definition"] for sense_id in chunk_sense_ids ]
         token_tags_list = [ token_tagger.tokenize_tag(definition) for definition in definition_list ]
         proposals_compounds_list = [ sense_proposer.propose_senses(token_tags) for token_tags in token_tags_list ]
