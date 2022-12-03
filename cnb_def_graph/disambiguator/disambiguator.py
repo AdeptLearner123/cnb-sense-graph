@@ -81,6 +81,10 @@ class Disambiguator:
                 inputs_list = [ inputs for inputs, _ in batch_inputs_senses ]
                 senses_list = [ senses for _, senses in batch_inputs_senses ]
                 
+                for instance, (input_ids, _, _, _, _, _) in zip(batch_instances, inputs_list):
+                    if len(input_ids) == 2479:
+                        print("Instance", instance._sense_id)
+
                 if torch.cuda.is_available():
                     inputs_list = [ self._send_inputs_to_cuda(inputs) for inputs in inputs_list ]
                 
