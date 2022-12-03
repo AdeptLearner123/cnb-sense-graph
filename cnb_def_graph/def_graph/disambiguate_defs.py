@@ -44,7 +44,7 @@ def save(batch_id, batch_text_senses):
         file.write(json.dumps(batch_text_senses, sort_keys=True, indent=4, ensure_ascii=False))
 
 
-def disambiguate_defs(dictionary, sense_ids, start_batch_id):
+def disambiguate_defs(dictionary, sense_ids, start_batch_id, should_save):
     use_amp = parse_args()
     
     token_tagger = TokenTagger()
@@ -62,11 +62,12 @@ def disambiguate_defs(dictionary, sense_ids, start_batch_id):
         senses = [ sense for sense in senses if sense is not None ]
         batch_result[sense_id] = list(set(senses))
 
-        if (i + 1) % SAVE_INTERVAL == 0:
+        if should_save and (i + 1) % SAVE_INTERVAL == 0:
             save(batch_id, batch_result)
             batch_result = dict()
             batch_id += SAVE_INTERVAL
-    save(batch_id, batch_result)    
+    if should_save:
+        save(batch_id, batch_result)    
 
 
 def disambiguate_all():
@@ -76,7 +77,7 @@ def disambiguate_all():
 
     print("Sense ids:", len(missing_sense_ids), "/", len(dictionary))
 
-    disambiguate_defs(dictionary, missing_sense_ids, len(disambiguated_text_ids))
+    disambiguate_defs(dictionary, missing_sense_ids, len(disambiguated_text_ids), True)
 
 
 def dry_run():
@@ -85,7 +86,7 @@ def dry_run():
     
     dictionary = read_dicts()
 
-    disambiguate_defs(dictionary, sense_ids, 0)
+    disambiguate_defs(dictionary, sense_ids, 0, False)
 
 
 def create_dry_run():
