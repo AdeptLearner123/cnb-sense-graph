@@ -3,7 +3,7 @@ from cnb_def_graph.sense_proposer.sense_proposer import SenseProposer
 from cnb_def_graph.disambiguator.disambiguator import Disambiguator
 from cnb_def_graph.utils.read_dicts import read_dicts
 
-from tqdm import tqdm
+from time import time
 import os
 import json
 from config import DISAMBIGUATION_BATCHES, DRY_RUN_SENSES
@@ -19,8 +19,17 @@ def parse_args():
     return args.use_amp
 
 
-def get_disambiguated_sense_ids():
-    sense_ids = set()
+def get_sentence_id(sense, idx):
+    return f"{sense}|{idx}"
+
+
+def parse_sentence_id(sentence_id):
+    sense, idx = sentence_id.split("|")
+    return sense, idx
+
+
+def get_disambiguated_sentence_ids():
+    sentence_ids = set()
 
     if not os.path.exists(DISAMBIGUATION_BATCHES):
         os.mkdir(DISAMBIGUATION_BATCHES)
@@ -29,8 +38,8 @@ def get_disambiguated_sense_ids():
         if filename.endswith(".json"):
             with open(os.path.join(DISAMBIGUATION_BATCHES, filename), "r") as file:
                 file_json = json.loads(file.read())
-                sense_ids.update(file_json.keys())
-    return sense_ids
+                sentence_ids.update(file_json.keys())
+    return sentence_ids
 
 
 def save(batch_id, batch_text_senses):
@@ -46,10 +55,10 @@ def save(batch_id, batch_text_senses):
 
 
 def divide_chunks(sense_ids):
-    return [sense_ids[i : i + CHUNK_SIZE] for i in range(0, len(sense_ids), CHUNK_SIZE) ]
+    return [ sense_ids[i : i + CHUNK_SIZE] for i in range(0, len(sense_ids), CHUNK_SIZE) ]
 
 
-def disambiguate_defs(dictionary, sense_ids, start_batch_id, should_save):
+def disambiguate_defs(dictionary, sentence_ids, start_batch_id, should_save):
     use_amp = parse_args()
     
     token_tagger = TokenTagger()
@@ -58,20 +67,24 @@ def disambiguate_defs(dictionary, sense_ids, start_batch_id, should_save):
 
     batch_id = start_batch_id
 
-    for chunk_sense_ids in tqdm(divide_chunks(sense_ids)):
-        print("Calling")
-        definition_list = [ dictionary[sense_id]["definition"] for sense_id in chunk_sense_ids ]
-        token_tags_list = [ token_tagger.tokenize_tag(definition) for definition in definition_list ]
-        proposals_compounds_list = [ sense_proposer.propose_senses(token_tags) for token_tags in token_tags_list ]
-        token_proposals_list = [ proposals for proposals, _ in proposals_compounds_list ]
-        compound_indices_list = [ compound_indices for _, compound_indices in proposals_compounds_list ]
+    start = time()
+    for i, chunk_sentence_ids in enumerate(divide_chunks(sentence_ids)):
+        print("CHUNK", i)
+        sense_idxs = [ parse_sentence_id(sentence_id) for sentence_id in chunk_sentence_ids ]
+        sentence_list = [ dictionary[sense_id]["sentences"][int(idx)] for sense_id, idx in sense_idxs ]
+        token_tags_list = [ token_tagger.tokenize_tag(definition) for definition in sentence_list ]
+        proposals_list = [ sense_proposer.propose_senses(token_tags) for token_tags in token_tags_list ]
 
-        senses_list = disambiguator.batch_disambiguate(chunk_sense_ids, token_proposals_list, compound_indices_list)
-        batch_result = { sense_id: senses for sense_id, senses in zip(chunk_sense_ids, senses_list) }
+        senses_list = disambiguator.batch_disambiguate(proposals_list)
+        batch_result = { sentence_id: {
+            "sentence": sentence,
+            "senses": senses
+        } for sentence_id, sentence, senses in zip(chunk_sentence_ids, sentence_list, senses_list) }
 
         if should_save:
             save(batch_id, batch_result)
             batch_id += CHUNK_SIZE
+    print(f"Time taken: {time() - start}")
 
     """
     for i, sense_id in tqdm(list(enumerate(sense_ids))):
@@ -92,14 +105,22 @@ def disambiguate_defs(dictionary, sense_ids, start_batch_id, should_save):
     """
 
 
+def get_sentence_ids(dictionary, sense_ids):
+    sentence_ids = []
+    for sense_id in sense_ids:
+        sentence_ids += [ get_sentence_id(sense_id, i) for i in range(len(dictionary[sense_id]["sentences"])) ]
+    return sentence_ids
+
+
 def disambiguate_all():
     dictionary = read_dicts()
-    disambiguated_text_ids = get_disambiguated_sense_ids()
-    missing_sense_ids = set(dictionary.keys()).difference(disambiguated_text_ids)
+    sentence_ids = get_sentence_ids(dictionary, list(dictionary.keys()))
+    disambiguated_sentence_ids = get_disambiguated_sentence_ids()
+    missing_sentence_ids = set(sentence_ids).difference(disambiguated_sentence_ids)
 
-    print("Sense ids:", len(missing_sense_ids), "/", len(dictionary))
+    print("Sentence ids:", len(missing_sentence_ids), "/", len(dictionary))
 
-    disambiguate_defs(dictionary, missing_sense_ids, len(disambiguated_text_ids), True)
+    disambiguate_defs(dictionary, missing_sentence_ids, len(disambiguated_sentence_ids), True)
 
 
 def dry_run():
@@ -107,8 +128,11 @@ def dry_run():
         sense_ids = file.read().splitlines()
     
     dictionary = read_dicts()
+    sentence_ids = get_sentence_ids(dictionary, sense_ids)
 
-    disambiguate_defs(dictionary, sense_ids, 0, False)
+    print("Sentence ids", len(sentence_ids))
+
+    disambiguate_defs(dictionary, sentence_ids, 0, False)
 
 
 def create_dry_run():
@@ -118,7 +142,3 @@ def create_dry_run():
     dry_run_senses = random.sample(dictionary.keys(), 512)
     with open(DRY_RUN_SENSES, "w+") as file:
         file.write("\n".join(dry_run_senses))
-
-
-if __name__ == "__main__":
-    main()

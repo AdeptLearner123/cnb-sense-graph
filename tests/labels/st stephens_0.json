@@ -1,5 +1,6 @@
 {
     "sense_id": "m_en_gbus1004380.003",
+    "sentence": 0,
     "tokens": [
         {
             "token": "a",
@@ -19,16 +20,17 @@
         },
         {
             "token": "House of Commons",
-            "tag": "noun",
-            "proposals": ["m_en_gbus0482330.004"],
-            "sense": ["m_en_gbus0482330.004"]
+            "tag": "proper",
+            "proposals": [
+                ["m_en_gbus0482330.004", 4, 5]
+            ],
+            "sense": [
+                ["m_en_gbus0482330.004", 4, 5]
+            ]
         },
         {
             "token": ".",
             "tag": null
         }
-    ],
-    "compound_indices": [
-        ["m_en_gbus0676830.101", 1, 3]
     ]
 }

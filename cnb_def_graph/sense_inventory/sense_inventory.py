@@ -5,9 +5,6 @@ class SenseInventory:
         self._key_to_senses = defaultdict(lambda: [])
         
         for lemma_pos, entry in sense_inventory_data.items():
-            if lemma_pos.count("|") > 1:
-                print("Lemma key", lemma_pos)
-
             _, pos = lemma_pos.split("|")
             lemma_tokens = tuple(entry["tokens"])
             senses = entry["senses"]

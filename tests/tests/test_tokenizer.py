@@ -14,9 +14,10 @@ def test_tokenizer():
             print("Testing", filename)
             labels = json.loads(file.read())
             sense_id = labels["sense_id"]
+            sentence_idx = int(labels["sentence"])
 
             expected_token_tags = [ (item["token"], item["tag"]) for item in labels["tokens"] ]
-            token_tags = token_tagger.tokenize_tag(dictionary[sense_id]["definition"])
+            token_tags = token_tagger.tokenize_tag(dictionary[sense_id]["sentences"][sentence_idx])
 
             expected_tokens = [ token for token, _ in expected_token_tags ]
             tokens = [ token for token, _ in token_tags ]

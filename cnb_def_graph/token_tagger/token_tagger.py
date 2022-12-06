@@ -4,7 +4,7 @@ from spacy.matcher import Matcher
 class TokenTagger():
     SPACY_POS_TO_TAG = {
         "NOUN": "noun",
-        "PROPN": "noun",
+        "PROPN": "proper",
         "VERB": "verb",
         "ADJ": "adjective",
         "NUM": "numeral"
@@ -45,7 +45,6 @@ class TokenTagger():
                 retokenizer.merge(doc[span[0].i:span[-1].i + 1], attrs = {"TAG": "NNP", "POS": "PROPN"})
 
     def _get_token_tag(self, token):
-        print(token, token.pos_)
         if token.is_stop:
             return None
 
@@ -56,11 +55,8 @@ class TokenTagger():
 
     def tokenize_tag(self, text):
         doc = self._nlp(text)
-        print("Merging")
         self._merge_proper_chunks(doc)
 
-        print("Finished merging")
         tokens = [ token.text for token in doc ]
         tags = [ self._get_token_tag(token) for token in doc ]
-        print("Returning")
         return list(zip(tokens, tags))

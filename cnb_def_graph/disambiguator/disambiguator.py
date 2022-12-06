@@ -9,7 +9,7 @@ from cnb_def_graph.consec.tokenizer import ConsecTokenizer
 from tqdm import tqdm
 
 class Disambiguator:
-    BATCH_SIZE = 4
+    BATCH_SIZE = 1
 
     def __init__(self, debug_mode=False, use_amp=False):
         self._dictionary = read_dicts()
@@ -23,6 +23,7 @@ class Disambiguator:
         if torch.cuda.is_available():
             self._sense_extractor.cuda()
 
+    """
     def _disambiguate_tokens(self, sense_id, token_senses, compound_indices):
         disambiguation_instance = ConsecDisambiguationInstance(self._dictionary, self._tokenizer, sense_id, token_senses, compound_indices)
 
@@ -42,6 +43,7 @@ class Disambiguator:
             disambiguation_instance.set_result(senses[sense_idx])
 
         return disambiguation_instance.get_disambiguated_senses()
+    """
 
     def _send_inputs_to_cuda(self, inputs):
         (input_ids, attention_mask, token_types, relative_pos, def_mask, def_pos) = inputs
@@ -60,30 +62,21 @@ class Disambiguator:
     def _divide_batches(self, active_instances, input_senses_list):
         instance_batches = [ active_instances[i : i + self.BATCH_SIZE] for i in range(0, len(active_instances), self.BATCH_SIZE) ]
         input_senses_batches = [ input_senses_list[i : i + self.BATCH_SIZE] for i in range(0, len(input_senses_list), self.BATCH_SIZE) ]
-        return zip(instance_batches, input_senses_batches)
+        return list(zip(instance_batches, input_senses_batches))
 
-    def batch_disambiguate(self, sense_id_list, token_proposals_list, compound_indices_list):
+    def batch_disambiguate(self, token_proposals_list):
         disambiguation_instances = [
-            ConsecDisambiguationInstance(self._dictionary, self._tokenizer, sense_id, token_proposals, compound_indices)
-            for sense_id, token_proposals, compound_indices in zip(sense_id_list, token_proposals_list, compound_indices_list)
+            ConsecDisambiguationInstance(self._dictionary, self._tokenizer, token_proposals)
+            for token_proposals in token_proposals_list
         ]
-
-        print("Disambiguation instacnes", len(disambiguation_instances), len([ instance for instance in disambiguation_instances if not instance.is_finished() ]))
-        print("Finished", [ sense_id for sense_id, instance in zip(sense_id_list, disambiguation_instances) if instance.is_finished()])
 
         while any([ not instance.is_finished() for instance in disambiguation_instances ]):
             active_instances = [ instance for instance in disambiguation_instances if not instance.is_finished() ]
-            print("New round, active instances", len(active_instances))
 
             inputs_senses_list = [ instance.get_next_input() for instance in active_instances ]
-            
+
             for batch_instances, batch_inputs_senses in tqdm(self._divide_batches(active_instances, inputs_senses_list)):
                 inputs_list = [ inputs for inputs, _ in batch_inputs_senses ]
-                senses_list = [ senses for _, senses in batch_inputs_senses ]
-                
-                for instance, (input_ids, _, _, _, _, _) in zip(batch_instances, inputs_list):
-                    if len(input_ids) == 2479:
-                        print("Instance", instance._sense_id)
 
                 if torch.cuda.is_available():
                     inputs_list = [ self._send_inputs_to_cuda(inputs) for inputs in inputs_list ]
@@ -92,8 +85,7 @@ class Disambiguator:
                 probs_list = self._sense_extractor.batch_extract(*inputs_list)
 
                 idx_list = [ torch.argmax(torch.tensor(probs)) for probs in probs_list ]
-                selected_senses_list = [ senses[idx] for senses, idx in zip(senses_list, idx_list) ]
 
-                [ instance.set_result(selected_sense) for instance, selected_sense in zip(batch_instances, selected_senses_list) ]
+                [ instance.set_result(selected_idx) for instance, selected_idx in zip(batch_instances, idx_list) ]
         
         return [ instance.get_disambiguated_senses() for instance in disambiguation_instances ]

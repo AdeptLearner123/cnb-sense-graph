@@ -5,6 +5,10 @@ from config import TEST_LABELS
 import os
 import json
 
+def lists_to_tuples(list):
+    return [ tuple(x) for x in list ]
+
+
 def test_disambiguator():
     disambiguator = Disambiguator()
 
@@ -13,15 +17,15 @@ def test_disambiguator():
             print("Testing", filename)
             labels = json.loads(file.read())
 
-            sense_id = labels["sense_id"]
-            token_proposals = [ (item["token"], item["proposals"] if "proposals" in item else []) for item in labels["tokens"] ]
-            compound_indices = [ (sense, (start, end)) for sense, start, end in labels["compound_indices"] ]
+            token_proposals = [ (item["token"], lists_to_tuples(item["proposals"]) if "proposals" in item else []) for item in labels["tokens"] ]
             tokens = [ token for token, _ in token_proposals ]
+            print("Token proposals")
 
-            senses_list = disambiguator.batch_disambiguate([ sense_id ], [ token_proposals ], [ compound_indices ])
+            senses_list = disambiguator.batch_disambiguate([ token_proposals ])
             senses = senses_list[0]
+            print("Expected senses")
 
-            expected_senses = [ item["sense"] if "sense" in item else None for item in labels["tokens"] ]
+            expected_senses = [ lists_to_tuples(item["sense"]) if "sense" in item else None for item in labels["tokens"] ]
 
             for token, sense, expected_sense_options in zip(tokens, senses, expected_senses):
                 if expected_sense_options is None:

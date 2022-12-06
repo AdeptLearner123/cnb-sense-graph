@@ -6,28 +6,25 @@ class ConsecDisambiguationInstance:
 
     MAX_CONTEXT_DEFS = 5
 
-    def __init__(self, dictionary, tokenizer, sense_id, token_senses, compound_indices):
+    def __init__(self, dictionary, tokenizer, token_proposals):
         self._dictionary = dictionary
-        self._sense_id = sense_id
-        self._token_senses = token_senses
-        self._compound_indices = compound_indices
+        self._proposals = [ proposals for _, proposals in token_proposals ]
         self._set_disambiguation_order()
-        self._current = 0
         self._tokenizer = tokenizer
-        self._tokens = [ token for token, _ in token_senses ]
+        self._tokens = [ token for token, _ in token_proposals ]
 
     def _get_definition(self, sense):
         return self._dictionary[sense]["definition"]
     
     def _set_disambiguation_order(self):
-        disambiguated_senses = [None] * len(self._token_senses)
+        disambiguated_senses = [None] * len(self._proposals)
 
         token_polysemy = []
-        for i, (_, senses) in enumerate(self._token_senses):
-            if len(senses) == 1:
-                disambiguated_senses[i] = senses[0]
-            elif len(senses) > 1:
-                token_polysemy.append((i, len(senses)))
+        for i, proposals in enumerate(self._proposals):
+            if len(proposals) == 1:
+                disambiguated_senses[i] = proposals[0]
+            elif len(proposals) > 1:
+                token_polysemy.append((i, len(proposals)))
 
         token_polysemy = sorted(token_polysemy, key=lambda item:item[1])
         disambiguation_order = [ i for i, _ in token_polysemy]
@@ -35,36 +32,35 @@ class ConsecDisambiguationInstance:
         self._disambiguation_order = disambiguation_order
     
     def is_finished(self):
-        return self._current >= len(self._disambiguation_order)
+        return len(self._disambiguation_order) == 0
     
     def get_next_input(self):
-        idx = self._disambiguation_order[self._current]
-        _, candidate_senses = self._token_senses[idx]
-        context_senses = [ (i, sense) for i, sense in enumerate(self._disambiguated_senses) if sense is not None and sense != self._sense_id ]
-        context_senses = context_senses[:self.MAX_CONTEXT_DEFS]
-
-        candidate_definitions = [ self._get_definition(sense) for sense in candidate_senses ]
-        context_definitions = [ (i, self._get_definition(sense)) for i, sense in context_senses ]
+        idx = self._disambiguation_order[0]
+        context_definitions = self._get_context_definitions()
+        candidate_senses, candidate_definitions = self._get_candidate_definitions()
         
-        print(self._tokens)
-        print(candidate_definitions)
-        print(context_definitions)
-
         tokenizer_result = self._tokenizer.tokenize(self._tokens, idx, candidate_definitions, context_definitions)
         return tokenizer_result, candidate_senses
-    
-    def set_result(self, disambiguated_sense):
-        idx = self._disambiguation_order[self._current]
-        self._disambiguated_senses[idx] = disambiguated_sense
-        self._current += 1
 
-        print("Set result", disambiguated_sense)
+    def _get_candidate_definitions(self):
+        idx = self._disambiguation_order[0]
+        candidate_senses = [ sense for sense, _, _ in self._proposals[idx] ]
+        return candidate_senses, [ self._get_definition(sense) for sense in candidate_senses ]
+
+    def _get_context_definitions(self):
+        context_sense_spans = [ (i, item) for i, item in enumerate(self._disambiguated_senses) if item is not None ]
+        context_sense_spans = context_sense_spans[:self.MAX_CONTEXT_DEFS]
+        return [ (i, self._get_definition(sense)) for i, (sense, _, _) in context_sense_spans ]
+
+    def set_result(self, selected_idx):
+        token_idx = self._disambiguation_order[0]
+        sense, start, end = self._proposals[token_idx][selected_idx]
+
+        for token_idx in range(start, end):
+            self._disambiguated_senses[token_idx] = (sense, start, end)
+
+            if token_idx in self._disambiguation_order:
+                self._disambiguation_order.remove(token_idx)
     
     def get_disambiguated_senses(self):
-        senses = self._disambiguated_senses
-
-        for sense, (start, end) in self._compound_indices:
-            if sense in senses[start:end]:
-                senses[start:end] = [sense] * (end - start)
-        
-        return senses
+        return self._disambiguated_senses

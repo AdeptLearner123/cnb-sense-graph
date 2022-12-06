@@ -25,9 +25,9 @@ def main():
     print("Token tags", token_tags)
 
     token_proposals, compound_indices = sense_proposer.propose_senses(token_tags)
-    senses = disambiguator.disambiguate(sense_id, token_proposals, compound_indices)
+    sense_indices = disambiguator.disambiguate(sense_id, token_proposals, compound_indices)
 
-    print("Senses", senses)
+    print("Senses", sense_indices)
 
 
 if __name__ == "__main__":
